@@ -1,5 +1,7 @@
+import { URL_BASE } from '../config/settings';
 import { instanceMongoSSH } from '../database/mongodb';
 import * as MySQLConnector from '../database/mysql';
+import fetch from 'node-fetch';
 
 (async () => {
   const { db, client } = await instanceMongoSSH();
@@ -20,11 +22,40 @@ import * as MySQLConnector from '../database/mysql';
   try {
     const collectionContracts = db.collection('contracts');
 
-    const query = `SELECT contrato_id,status
+    const query = `SELECT contrato_id,status 
                    FROM vcm.card_migrations
-                   WHERE vcm.card_migrations.status NOT LIKE '%Successful Tokenization%';`;
+                   WHERE vcm.card_migrations.status LIKE '%Successful Tokenization%';`;
 
-    const contractsRetry:any[] = await MySQLConnector.execute(query, []);
+    const contractsTokenizados:any[] = await MySQLConnector.execute(query, []);
+    const sendContracts = await collectionContracts.find({ status: 'send' }).toArray();
+
+    let tokenizados = contractsTokenizados.map((x) => x.contrato_id);
+    let sends = sendContracts.map((y) => y.contratoId);
+
+    let payload = {
+      contracts_pool: sends,
+      tokenized_contracts: tokenizados,
+    };
+
+    const response = await fetch(`${URL_BASE}/api/get-contracts-not-tokenized`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }
+    ).then((res) => {
+      let result;
+      if (res.ok) result = res.text();
+      else {
+        result = res.status;
+        console.log('respose no ok:', result);
+      }
+      return result;
+    });
+
+    let contractsRetry = response.split(',');
 
     console.log('contractsRetry', contractsRetry.length);
 
@@ -33,7 +64,7 @@ import * as MySQLConnector from '../database/mysql';
     for (let contract of contractsRetry) {
       console.log(contract);
       await collectionContracts.updateOne(
-        { contratoId: contract.contrato_id },
+        { contratoId: Number(contract) },
         { $set: { status: 'active' } }
       );
     }
