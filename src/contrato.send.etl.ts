@@ -21,9 +21,11 @@ import { URL_BASE } from '../config/settings';
     const collectionSensbox = db.collection('sendbox');
 
     const contracts = await collectionContracts
-      .find({ status: { $exists: false }})
+      .find({
+        $or: [{ status: { $exists: false } }, { status: { $eq: 'active' } }],
+      })
       .toArray();
-    const process = sliceIntoChunks(contracts, 1);
+    const process = sliceIntoChunks(contracts, 100);
 
     console.log('collectionContracts', contracts.length);
     console.log('process', process.length);
@@ -48,7 +50,7 @@ import { URL_BASE } from '../config/settings';
         if (res.ok) result = res.json();
         else {
           result = res.status;
-          console.log("respose no ok:",result);
+          console.log('respose no ok:', result);
         }
         return result;
       });
@@ -62,7 +64,6 @@ import { URL_BASE } from '../config/settings';
       console.log('response:process:contrart:', response);
 
       for (let contract of lote) {
-
         //await sleep(1000);
         //console.log('update:process:contrart:', contract.contratoId);
         await collectionContracts.updateOne(
@@ -70,11 +71,10 @@ import { URL_BASE } from '../config/settings';
           { $set: { status: 'send' } }
         );
         //console.log('out:process:contrart:', contract.contratoId);
-       
       }
 
       let time = 3000;
-      console.log(`please wait ${time/1000} seconds ......`);
+      console.log(`please wait ${time / 1000} seconds ......`);
       await sleep(time);
     }
 

@@ -19,3 +19,10 @@ export const MONGODB_URI = process.env.MONGODB_URI as string || "";
 export const TSSH_PUBKEY = process.env.TUNEL_SSH_PUBKEY as string;
 
 export const URL_BASE = process.env.URL_BASE as string;
+export const MYSQL_DB_HOST = process.env.MYSQL_DB_HOST || '';
+export const MYSQL_DB_USER = process.env.MYSQL_DB_USER || '';
+export const MYSQL_DB_PASSWORD = process.env.MYSQL_DB_PASSWORD || '';
+export const MYSQL_DB_PORT = +process.env.MYSQL_DB_PORT;
+export const MYSQL_DB_DATABASE = process.env.MYSQL_DB_DATABASE || '';
+export const MYSQL_DB_CONNECTION_LIMIT =
+  +process.env.MYSQL_DB_CONNECTION_LIMIT || 5;
