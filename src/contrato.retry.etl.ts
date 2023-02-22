@@ -1,6 +1,4 @@
 import { instanceMongoSSH } from '../database/mongodb';
-import fetch from 'node-fetch';
-import { URL_BASE } from '../config/settings';
 import * as MySQLConnector from '../database/mysql';
 
 (async () => {

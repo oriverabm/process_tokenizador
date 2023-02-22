@@ -1,6 +1,5 @@
 
 import { instanceMongoSSH } from '../database/mongodb';
-import fetch from 'node-fetch';
 
 import contrats from '../Esaud.json'
 
