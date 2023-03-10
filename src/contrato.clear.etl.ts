@@ -7,9 +7,15 @@ import { instanceMongoSSH } from '../database/mongodb';
   try {
 
     const collectionContracts = db.collection('contracts');
-    const result = await collectionContracts.deleteMany({});
+    const resultContracts = await collectionContracts.deleteMany({});
 
-    console.log('etl:clear:db', result);
+    const collectionSensbox = db.collection('sendbox');
+    const resultSendBox = await collectionSensbox.deleteMany({});
+
+    console.log('etl:clear:db', [
+      { contracts: resultContracts },
+      { sendbox: resultSendBox },
+    ]);
 
   } catch (error) {
     console.log('error',error);
